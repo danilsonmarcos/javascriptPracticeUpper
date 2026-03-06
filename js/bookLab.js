@@ -82,7 +82,7 @@ function removeContent() {
 }
 
 //showing the elements(books) straight on the page
-function mainPage(arrayOfBooks) {
+function mainPage(arrayOfBooks, removeContent, removeBookFromList) {
     //first of all, we have to get the element where the books are gonna be 
     var library = document.getElementById("book-lab");
 
@@ -102,10 +102,44 @@ function mainPage(arrayOfBooks) {
         var bookRead = document.createElement("p");
         //a button to remove the book from the list 
         const bookRemoveButton = document.createElement("button");
+        //button to alter the state of a book (if its read or not)
+        const bookStateButton = document.createElement("button");
         //giving the button a class
         bookRemoveButton.classList.add('add-button');
         bookRemoveButton.classList.add('remove-button');
-        bookRemoveButton.setAttribute('style', 'background-color: rgba(225, 50, 50, 0.46); font-weight: bold; border-radius: 10px; padding: 5px; margin-top: 10px; font-size: 10px; color: white ');
+        bookRemoveButton.setAttribute('style', 'background-color: rgba(225, 50, 50, 0.46); font-weight: bold; border-radius: 10px; padding: 5px; margin-top: 10px; font-size: 10px; color: white; margin-right: 10px;');
+        //giving the button a class
+        bookStateButton.classList.add('add-button');
+        bookStateButton.classList.add('state-button');
+        //there are some condition to consider, before giving the button, a color and anything like this 
+        //if the book is unread, the button has to be green, otherwise, the button has to be red
+        if (arrayOfBooks[i].isRead === false) {
+            //giving the styles for the button
+            bookStateButton.setAttribute('style', 'background-color: rgba(51, 189, 39, 0.68); font-weight: bold; border-radius: 10px; padding: 5px; margin-top: 10px; font-size: 10px; color: white ');
+            //and the book context has to be 
+            bookStateButton.textContent = 'Mark as Read';
+            //for the mouse over 
+            bookStateButton.addEventListener('mouseenter', () => {
+                bookStateButton.style.backgroundColor = 'rgba(51, 189, 39, 0.89)';
+            });
+            //when the mouse is out of the button 
+            bookStateButton.addEventListener('mouseleave', () => {
+                bookStateButton.style.backgroundColor = 'rgba(51, 189, 39, 0.68)';
+            });
+        } else {
+            //giving the styles for the button
+            bookStateButton.setAttribute('style', 'background-color: rgba(214, 27, 27, 0.69); font-weight: bold; border-radius: 10px; padding: 5px; margin-top: 10px; font-size: 10px; color: white ');
+            //and the book context has to be 
+            bookStateButton.textContent = 'Mark as Unread';
+            //for the mouse over 
+            bookStateButton.addEventListener('mouseenter', () => {
+                bookStateButton.style.backgroundColor = 'rgba(214, 27, 27, 0.93)';
+            });
+            //when the mouse is out of the button 
+            bookStateButton.addEventListener('mouseleave', () => {
+                bookStateButton.style.backgroundColor = 'rgba(214, 27, 27, 0.69)';
+            });
+        }
         //events on the button (it works like hover)
         //when the mouse goes over the button
         bookRemoveButton.addEventListener('mouseenter', () => {
@@ -117,7 +151,8 @@ function mainPage(arrayOfBooks) {
         });
         bookRemoveButton.textContent = `REMOVE`;
         //setting an attribute thought each button, by the variable i, turning all buttons unique for each book 
-        bookRemoveButton.setAttribute('id', `b${i}`); 
+        bookRemoveButton.setAttribute('id', `b${i}`);
+        bookStateButton.setAttribute('id', `s${i}`); 
         //setting the values of the title, author and pages
         bookTitle.textContent = `${arrayOfBooks[i].title}`;
         bookAuthor.textContent = `${arrayOfBooks[i].author}`;
@@ -132,13 +167,35 @@ function mainPage(arrayOfBooks) {
         //setting the attributes for the title, author and pages
         bookTitle.setAttribute('style', 'color: blue; margin-bottom: 10px;');
         bookPages.setAttribute('style', 'align-item: left;');
-        bookAuthor.setAttribute('style', 'align-item: center;')
+        bookAuthor.setAttribute('style', 'align-item: center;');
+        //special event: removing the button
+        bookRemoveButton.addEventListener('click', () => {
+            //remove all the content 
+            removeContent();
+            removeBookFromList(arrayOfBooks, arrayOfBooks[i]);
+            //and show all the books from the list
+            mainPage(arrayOfBooks, removeContent, removeBookFromList);
+        });
+        //special event: changing the state of the book
+        bookStateButton.addEventListener('click', () => {
+            //remove all the content
+            removeContent(); 
+            //change the book state
+            if (arrayOfBooks[i].isRead === false){
+                arrayOfBooks[i].isRead = true; 
+            }else{
+                arrayOfBooks[i].isRead = false; 
+            }
+            //then, show the content of the page again
+            mainPage(arrayOfBooks, removeContent, removeBookFromList); 
+        })
         //adding the content throught the div
         book.appendChild(bookTitle);
         book.appendChild(bookAuthor);
         book.appendChild(bookPages);
         book.appendChild(bookRead);
         book.appendChild(bookRemoveButton);
+        book.appendChild(bookStateButton); 
         //add the book through the library
         library.appendChild(book);
     }
@@ -180,26 +237,23 @@ function addBook(arrayOfBooks) {
 }
 
 //method to remove the book from the list
-function removeBookFromList(arrayOfBooks, bookId){
+function removeBookFromList(arrayOfBooks, bookId) {
     //this method is to remove the book from the array 
     const index = arrayOfBooks.indexOf(bookId);
-
     if (index !== -1) {
         arrayOfBooks.splice(index, 1);
     }
-
-    console.log(`Updated Array: ${arrayOfBooks}`); 
 }
 
 addBookButton.addEventListener('click', () => {
     removeContent();
     addBook(arrayOfBooks);
-    mainPage(arrayOfBooks);
-}); 
+    mainPage(arrayOfBooks, removeContent, removeBookFromList);
+});
 
 //keep coding from here! 
 //removeBookFromList(arrayOfBooks, arrayOfBooks[0]); 
-mainPage(arrayOfBooks);
+mainPage(arrayOfBooks, removeContent, removeBookFromList);
 
 
 
